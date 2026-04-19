@@ -34,6 +34,36 @@ st.caption(
     "Each mean-reversion cycle books the grid step as realized profit."
 )
 
+# Short always-visible warning
+st.warning(
+    "⚠️ **For educational and research purposes only.** Not financial advice, "
+    "not a trading recommendation, and not a prediction of future results. "
+    "Past performance ≠ future performance. Expand the disclaimer below for details.",
+    icon="⚠️",
+)
+
+with st.expander("📜 Full disclaimer"):
+    st.markdown("""
+This tool is for **educational and research purposes only**. It is not financial
+advice, not a trading recommendation, and not a prediction of future results.
+
+Backtest results are based on historical data and simplifying assumptions
+(kline-level fills, probabilistic taker rate, no real order book depth).
+**Past performance does not guarantee future performance.** Live trading
+outcomes will differ — often significantly — from backtest results due to
+slippage, partial fills, API latency, funding rate fluctuations, and market
+conditions that did not occur in the historical sample.
+
+Cryptocurrency trading, especially with leverage on perpetual futures,
+carries a substantial risk of loss, including loss of your entire invested
+capital. Do your own research, understand the mechanics of grid bots, and
+never risk funds you can't afford to lose.
+
+The author assumes no responsibility for any losses or damages resulting
+from the use of this software. Use at your own risk.
+    """)
+
+
 # ========== CACHED LOADERS ==========
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_symbols():
