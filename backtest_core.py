@@ -2,14 +2,9 @@
 Backpack Exchange — Grid Bot Backtester (core module)
 =====================================================
 
-Two grid modes:
+Grid mode:
 
-1. SPOT-STYLE (long-biased)
-   Classic grid: buys below start price, sells above. Pre-buys base inventory
-   at start to back the sell orders. Can only hold long or zero — never short.
-   Good for markets you expect to range or rise.
-
-2. NEUTRAL-PERP (market-neutral)
+NEUTRAL-PERP (market-neutral)
    PERP grid with signed positions. No pre-buy — all capital is margin.
    When a BUY fills → position goes long → a SELL order is placed one step
    ABOVE it (to close with +step profit). When a SELL fills → position goes
