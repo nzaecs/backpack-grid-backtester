@@ -1,3 +1,13 @@
+## ⚠️ Disclaimer
+
+This tool is for **educational and research purposes only**. It is not financial advice, not a trading recommendation, and not a prediction of future results.
+
+Backtest results are based on historical data and simplifying assumptions (kline-level fills, probabilistic taker rate, no real order book depth). **Past performance does not guarantee future performance.** Live trading outcomes will differ — often significantly — from backtest results due to slippage, partial fills, API latency, funding rate fluctuations, and market conditions that did not occur in the historical sample.
+
+Cryptocurrency trading, especially with leverage on perpetual futures, carries a substantial risk of loss, including loss of your entire invested capital. Do your own research, understand the mechanics of grid bots, and never risk funds you can't afford to lose.
+
+The author assumes no responsibility for any losses or damages resulting from the use of this software. Use at your own risk.
+
 # Backpack Neutral Grid Backtester
 
 Web UI for backtesting a **market-neutral grid bot** strategy on Backpack Exchange PERP markets.
@@ -27,28 +37,6 @@ streamlit run app.py
 
 Opens at `http://localhost:8501`.
 
-## Deploy on Streamlit Community Cloud (free)
-
-1. Push these files to a public GitHub repo:
-   - `app.py`
-   - `backtest_core.py`
-   - `requirements.txt`
-2. Go to <https://share.streamlit.io> and sign in with GitHub.
-3. Click **New app**, pick your repo, set main file to `app.py`, click **Deploy**.
-4. You'll get a public URL like `your-app-name.streamlit.app` within a minute.
-
-**Free tier limits:**
-- 1 GB RAM — fine for up to ~200k candles
-- App sleeps after ~7 days of inactivity (wakes up in ~30 sec)
-- Built-in 10-minute cache handles shared-IP rate limits
-
-## Deploy on Railway / Render (paid, no sleep)
-
-Same repo works. On Railway, add a start command:
-
-```
-streamlit run app.py --server.port $PORT --server.address 0.0.0.0
-```
 
 ## Project structure
 
@@ -58,34 +46,9 @@ backtest_core.py    # Pure backtest logic, importable
 requirements.txt    # pip dependencies
 ```
 
-## How the neutral grid works
-
-**Starting state** (position = 0, all capital is margin):
-- Levels **below** current price → `BUY_OPEN` resting orders (will open long on a dip)
-- Levels **above** current price → `SELL_OPEN` resting orders (will open short on a rally)
-
-**Price drops through a BUY_OPEN level:**
-1. Buy fills → position goes **long** by `qty`
-2. A `SELL_CLOSE` order is placed **one level above** at the entry — will close this long with `+step × qty` profit when price recovers
-
-**Price rises through a SELL_OPEN level:**
-1. Sell fills → position goes **short** by `qty`
-2. A `BUY_CLOSE` is placed **one level below** at the entry — closes this short with `+step × qty` on a dip
-
-**Why "neutral":** every open leg always has a pending close order `step` away. If price oscillates in the grid range, each cycle books realized profit regardless of direction. The position drifts only when price trends strongly, accumulating inventory on the side the market is moving away from.
-
-## When the strategy loses money
-
-- **Strong trend out of the range** — one side accumulates positions, the other stays empty. Unrealized losses grow until price returns (or SL triggers).
-- **Price leaves the range entirely** — no more fills, position just marks to market.
-- **High funding on the wrong side** — if net position is on the losing side of funding, it bleeds equity over time.
-- **Tight grid + high fees** — if `step × qty < 2 × fee × price × qty`, each cycle loses money.
-
 ## Notes on accuracy
 
 The backtest uses a **kline-based fill model**: if a grid level falls within `[low, high]` of a candle, the order is considered filled at the level price. This tends to overstate PnL by 5–20% vs tick-level simulation in fast markets. Treat results as an **upper bound**, not a guarantee.
-
-Taker fills are modelled probabilistically — per Backpack's FAQ, resting limit orders may execute as taker during rapid price moves or tight spacing. Default 5% taker rate is a reasonable estimate for moderately liquid markets; adjust in the sidebar.
 
 Position is marked-to-market using the candle `close` — close enough for daily attribution, may under/overstate tick-level equity swings.
 
